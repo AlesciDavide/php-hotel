@@ -1,16 +1,24 @@
 <?php 
 require __DIR__ . "/utilities/hotel.php";
 
+
+$isOption1Selected = false;
+$voteNumber = 1;
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Ottieni il valore del radio button selezionato
     $selectedOption = isset($_POST['inlineRadioOptions']) ? $_POST['inlineRadioOptions'] : null;
 
-    // Inizializza la variabile booleana
-    $isOption1Selected = false;
-
-    // Verifica quale opzione è stata selezionata
     if ($selectedOption == "option1") {
         $isOption1Selected = true;
+    }elseif($selectedOption == "option2"){
+        $isOption1Selected = false;
+    }else{
+        $isOption1Selected = true;
+    }
+
+    $voteNumber = isset($_POST['exampleDataList']) ? (int)$_POST['exampleDataList'] : 1;
+    if ($voteNumber < 1 || $voteNumber > 5) {
+        $voteNumber = 1;
     }
 }
 ?>
@@ -26,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <section>
-        <form  action="./index.php" method="POST">
+        <form action="./index.php" method="POST">
             <h3>desideri parcheggio?</h3>
             <div class="d-flex ms-3">
                 <div class="form-check">
@@ -37,6 +45,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input class="form-check-input" type="radio" id="inlineRadio2" name="inlineRadioOptions" value="option2">
                     <label class="form-check-label" for="inlineRadio2">Si</label>
                 </div>
+            </div>
+            <h3>Inserisci un voto minimo da 1 a 5 per selezionare l'hotel:</h3>
+                <input
+                type="number"
+                class="form-control"
+                name="exampleDataList" 
+                id="exampleDataList" 
+                placeholder="Inserisci il voto minimo...">
+                
+
+            <div>
+
                 <button class="ms-3" type="submit">Submit</button>
             </div>
         </form>
@@ -53,11 +73,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </thead>
         <tbody class="table-group-divider">
             <?php foreach ($hotels as $key => $hotel) { ?>
-                <?php if ($hotel['parking'] || $isOption1Selected == true) {?>
+                <?php if (($hotel['parking'] || $isOption1Selected) && $hotel['vote'] >= $voteNumber) {?>
             <tr>
             <th><?php echo $hotel['name'] ?></th>
             <td><?php echo $hotel['description'] ?></td>
-            <td><?php echo $hotel['parking'] ?></td>
+            <td>
+            <?php echo $hotel['parking'] ? 'Yes' : 'No' ?>
+            </td>
             <td><?php echo $hotel['vote'] ?></td>
             <td><?php echo $hotel['distance_to_center'] ?>Km</td>
             </tr>
